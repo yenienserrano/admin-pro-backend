@@ -16,18 +16,16 @@ const app = express()
 
 app.use(cors())
 
+app.use(express.json())
+
 
 dbConnection()
 
 
 
-//rutas
-app.get( '/', (req, res) => {
-    res.json({
-        ok: true,
-        message: "Hola Mundo"
-    })
-})
+//Rutas
+app.use( '/api/usuarios', require('./routes/usuarios') )
+app.use( '/api/auth', require('./routes/auth') )
 
 
 
