@@ -9,23 +9,37 @@ const Usuario = require('../models/usuario');
 
 const getUsuarios = async(req, res) => {
 
-    const usuarios = await Usuario.find({}, "Role Nombre Email Google")
+    const desde = Number(req.query.desde) || 0
+
+    console.log(desde)
+
+    const [ usuarios, total ] = await Promise.all([
+        Usuario
+            .find({}, "role nombre email google img")
+            .skip( desde )
+            .limit( 5 ),
+
+        Usuario.countDocuments()
+    ])
+    
 
     res.json({
         ok: true,
-        usuarios
+        usuarios,
+        total
     })
 }
 
 
 const crearUsuario = async(req, res = response) => {
 
-    const { Email, Password } = req.body
+    const { email, password } = req.body
+    
 
     
     try {
 
-        const existEmail = await Usuario.findOne({ Email })
+        const existEmail = await Usuario.findOne({ email })
 
         if( existEmail ){
             return res.status(400).json({
@@ -38,7 +52,7 @@ const crearUsuario = async(req, res = response) => {
 
         //encriptar password
         const salt = bcrypt.genSaltSync();
-        usuario.Password = bcrypt.hashSync( Password , salt );
+        usuario.password = bcrypt.hashSync( password , salt );
 
 
         await usuario.save()
@@ -76,11 +90,11 @@ const actualizarUsuario = async(req, res = response) => {
             })
         }
 
-        const { Password, Google, Email, ...campos } = req.body
+        const { password, google, email, ...campos } = req.body
 
 
-        if( usuarioDB.Email !== Email ){            
-            const emailUtilizado = await Usuario.findOne({ Email })
+        if( usuarioDB.email !== email ){            
+            const emailUtilizado = await Usuario.findOne({ email })
             if( emailUtilizado ){
                 return res.status(400).json({
                     ok: false,
@@ -89,7 +103,7 @@ const actualizarUsuario = async(req, res = response) => {
             }
         }
 
-        campos.Email = Email
+        campos.email = email
 
         const usuarioActualizado = await Usuario.findByIdAndUpdate( uid, campos, { new: true })
 

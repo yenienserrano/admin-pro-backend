@@ -6,11 +6,11 @@ const { generarJWT } = require("../helpers/jwt")
 const Usuario = require('../models/usuario');
 
 const login = async(req, res = response) => {
-    const { Email, Password } = req.body
+    const { email, password } = req.body
     try {
 
         // validar email
-        const usuarioDB = await Usuario.findOne({ Email })
+        const usuarioDB = await Usuario.findOne({ email })
         if( !usuarioDB ){
             return res.status(404).json({
                 ok:false,
@@ -19,7 +19,7 @@ const login = async(req, res = response) => {
         }
 
         //validar contraseña
-        const validPassword = bcrypt.compareSync( Password, usuarioDB.Password )
+        const validPassword = bcrypt.compareSync( password, usuarioDB.password )
 
         if( !validPassword ){
             return res.status(404).json({
