@@ -21,6 +21,8 @@ app.use(express.json())
 
 dbConnection()
 
+app.use( express.static('./public'))
+
 
 
 //Rutas
